@@ -43,7 +43,7 @@ template <typename T> std::unique_ptr<cudf::column> MakeColumn(std::vector<T> &&
 
 // only support int, float
 template <typename T>
-std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>, StringifiedColumn>
+std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>, std::vector<T>>
 ColumnToVectorNoMask(cudf::column_view const &col) {
   auto vec = std::vector<T>(col.size());
   auto dData = col.data<T>();
@@ -54,7 +54,7 @@ ColumnToVectorNoMask(cudf::column_view const &col) {
 
 // only support int, float
 template <typename T>
-std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>, StringifiedColumn>
+std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>, std::vector<std::string>>
 VectorToStringsNoMask(std::vector<T> vec) {
   auto strVec = std::vector<std::string>(vec.size());
   std::transform(vec.begin(), vec.end(), strVec.begin(),

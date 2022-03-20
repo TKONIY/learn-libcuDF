@@ -53,15 +53,29 @@ int main(int argc, char **argv) {
    * @brief Example of cudf::groupby
    * keys:      rightCol1
    * values:    rightCol2
+   * 
+   * table
+   * 4 1
+   * 3 2
+   * 3 5
+   *
+   * result
+   * 4 1
+   * 3 7
+   *
+   * select sum(col1)
+   * from table
+   * group by col0
    */
+
   auto agg = cudf::make_sum_aggregation<cudf::groupby_aggregation>();
-  auto keys = rightCol1->view();
-  auto values = rightCol2->view();
 
   std::vector<cudf::groupby::aggregation_request> requests;
   requests.emplace_back(cudf::groupby::aggregation_request());
-  requests[0].values = values;
+  requests[0].values = rightCol2->view();
   requests[0].aggregations.push_back(std::move(agg));
-  auto results = cudf::groupby::groupby(cudf::table_view({keys})).aggregate(requests);
 
+  cudf::groupby::groupby gby(cudf::table_view({rightCol1->view()}));
+
+  auto results = gby.aggregate(requests);
 }
