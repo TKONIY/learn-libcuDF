@@ -9,9 +9,7 @@
 
 int main(int argc, char **argv) {
   /**
-   * @brief Example of cudf::inner_join
-   * Showing usage of cudf::table and cudf::column.
-   * Also give a good practice of cudf::type_dispatcher.
+   * @brief Example of cudf::group_by
    */
   auto keyCol = ghive::MakeColumn<int64_t>({4, 3, 3});
   auto valueCol = ghive::MakeColumn<int64_t>({1, 2, 5});

@@ -11,9 +11,7 @@
 
 int main(int argc, char **argv) {
   /**
-   * @brief Example of cudf::inner_join
-   * Showing usage of cudf::table and cudf::column.
-   * Also give a good practice of cudf::type_dispatcher.
+   * @brief Example of cudf::hash_join
    */
   auto leftCol1 = ghive::MakeColumn<int64_t>({0, 2, 1, 2, 4, 5});
   auto rightCol1 = ghive::MakeColumn<int64_t>({4, 3, 3, 3, 3, 3});
