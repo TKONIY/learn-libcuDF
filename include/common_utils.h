@@ -109,7 +109,7 @@ struct ColumnToStringsNoMaskFunctor {
 };
 } // namespace functor
 
-StringifiedTable ToStrings(cudf::table_view &&table) {
+StringifiedTable ToStrings(const cudf::table_view &table) {
   auto strVectors = ghive::StringifiedTable();
   for (cudf::size_type i = 0; i < table.num_columns(); ++i) {
     auto columnView = table.column(i);
