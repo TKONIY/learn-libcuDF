@@ -3,14 +3,21 @@ project(learn_libcuDF CXX CUDA)
 
 set(CMAKE_CUDA_STANDARD 17)
 
-add_executable(learn_libcuDF main.cu common_utils.h)
+set(HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(MY_INCLUDES /home/dys/anaconda3/envs/cudf_dev/include ${HEADER_DIR})
+set(MY_LINKS /home/dys/anaconda3/envs/cudf_dev/lib/libcudf.so fmt::fmt)
 
-set_target_properties(learn_libcuDF PROPERTIES
-        CUDA_SEPARABLE_COMPILATION ON)
-        
+add_executable(join     ${SRC_DIR}/join.cu     ${HEADER_DIR}/common_utils.h)
+add_executable(groupby  ${SRC_DIR}/groupby.cu  ${HEADER_DIR}/common_utils.h)
+add_executable(hashjoin ${SRC_DIR}/hashjoin.cu  ${HEADER_DIR}/common_utils.h)
+
+set(CUDA_SEPARABLE_COMPILATION ON)
 find_package(fmt)
-target_include_directories(learn_libcuDF
-        PUBLIC /home/dys/anaconda3/envs/cudf_dev/include)
-target_link_libraries(learn_libcuDF
-        PUBLIC /home/dys/anaconda3/envs/cudf_dev/lib/libcudf.so
-        PUBLIC fmt::fmt)
+target_include_directories(join PUBLIC ${MY_INCLUDES})
+target_include_directories(groupby PUBLIC ${MY_INCLUDES})
+target_include_directories(hashjoin PUBLIC ${MY_INCLUDES})
+
+target_link_libraries(join PUBLIC ${MY_LINKS})
+target_link_libraries(groupby PUBLIC ${MY_LINKS})
+target_link_libraries(hashjoin PUBLIC ${MY_LINKS})

@@ -43,7 +43,9 @@ template <typename T> std::unique_ptr<cudf::column> MakeColumn(std::vector<T> &&
 
 // only support int, float
 template <typename T>
-std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>, std::vector<T>>
+std::enable_if_t<std::is_same_v<T, int64_t> || std::is_same_v<T, int32_t> ||
+                     std::is_same_v<T, float>,
+                 std::vector<T>>
 ColumnToVectorNoMask(cudf::column_view const &col) {
   auto vec = std::vector<T>(col.size());
   auto dData = col.data<T>();
@@ -54,7 +56,9 @@ ColumnToVectorNoMask(cudf::column_view const &col) {
 
 // only support int, float
 template <typename T>
-std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>, std::vector<std::string>>
+std::enable_if_t<std::is_same_v<T, int64_t> || std::is_same_v<T, int32_t> ||
+                     std::is_same_v<T, float>,
+                 std::vector<std::string>>
 VectorToStringsNoMask(std::vector<T> vec) {
   auto strVec = std::vector<std::string>(vec.size());
   std::transform(vec.begin(), vec.end(), strVec.begin(),
@@ -86,7 +90,8 @@ void OutputStringifiedColumn(const StringifiedColumn &column,
 namespace functor {
 struct ColumnToStringsNoMaskFunctor {
   template <typename T>
-  std::enable_if_t<std::is_same_v<T, int> || std::is_same_v<T, float>,
+  std::enable_if_t<std::is_same_v<T, int64_t> || std::is_same_v<T, int32_t> ||
+                       std::is_same_v<T, float>,
                    StringifiedColumn>
   operator()(cudf::column_view const &col) {
     auto vec = ColumnToVectorNoMask<T>(col);
@@ -95,12 +100,28 @@ struct ColumnToStringsNoMaskFunctor {
   }
 
   template <typename T>
-  std::enable_if_t<!(std::is_same_v<T, int> || std::is_same_v<T, float>),
+  std::enable_if_t<!(std::is_same_v<T, int64_t> || std::is_same_v<T, int32_t> ||
+                     std::is_same_v<T, float>),
                    StringifiedColumn>
   operator()(cudf::column_view const &col) {
     return std::vector<std::string>{static_cast<size_t>(col.size()), Global::WrongType};
   }
 };
 } // namespace functor
+
+StringifiedTable ToStrings(const cudf::table_view &table) {
+  auto strVectors = ghive::StringifiedTable();
+  for (cudf::size_type i = 0; i < table.num_columns(); ++i) {
+    auto columnView = table.column(i);
+
+    fmt::print("col{} type = {} row number = {}\n", i,
+               static_cast<int32_t>(columnView.type().id()), columnView.size());
+
+    auto vec = cudf::type_dispatcher(
+        columnView.type(), functor::ColumnToStringsNoMaskFunctor{}, columnView);
+    strVectors.push_back(vec);
+  }
+  return strVectors;
+}
 } // namespace ghive
 #endif // LEARN_LIBCUDF_COMMON_UTILS_H
